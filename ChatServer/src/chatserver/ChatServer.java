@@ -3,19 +3,27 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package chatclient;
+package chatserver;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author beyza
  */
-public class ChatClient {
+public class ChatServer {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+       
+            // TODO code application logic here
+            Server server = new Server(5000);
+            server.listen();
+        
     }
     
 }

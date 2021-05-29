@@ -6,6 +6,12 @@
 package chatclient;
 
 import java.awt.CardLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 /**
@@ -19,6 +25,7 @@ public class ClientFrame extends javax.swing.JFrame {
      */
     
     CardLayout cardLayout;
+    DefaultListModel dlm;
     
     public ClientFrame() {
         initComponents();
@@ -35,10 +42,22 @@ public class ClientFrame extends javax.swing.JFrame {
     
     void init_frame(){
         
+        chatBoxField.setLineWrap(true);
+        chatBoxField.setWrapStyleWord(true);
+        
         cardLayout = (CardLayout)getContentPane().getLayout();
         cardLayout.show(getContentPane(), "menuCard");
         
+        dlm = new DefaultListModel();
+        connectedClientList.setModel(dlm);
+        
     }
+
+    public DefaultListModel getDlm() {
+        return dlm;
+    }
+    
+ 
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -51,36 +70,41 @@ public class ClientFrame extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         onlinePanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        listPane = new javax.swing.JScrollPane();
+        connectedClientList = new javax.swing.JList<>();
         exitButton = new javax.swing.JButton();
+        startChat_button = new javax.swing.JButton();
+        startchatroom_button = new javax.swing.JButton();
+        messagesPane = new javax.swing.JScrollPane();
+        chatBoxField = new javax.swing.JTextArea();
+        sendButton = new javax.swing.JButton();
+        chatNameLabel = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        writeMessageField = new javax.swing.JTextField();
         menuPanel = new javax.swing.JPanel();
         menuIconLabel = new javax.swing.JLabel();
+        usernameTextField = new javax.swing.JTextField();
         connectButton = new javax.swing.JButton();
-        nicknameTextField = new javax.swing.JTextField();
+        menuMessageLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(600, 700));
+        setPreferredSize(new java.awt.Dimension(950, 750));
         getContentPane().setLayout(new java.awt.CardLayout());
 
+        onlinePanel.setPreferredSize(new java.awt.Dimension(810, 661));
         onlinePanel.setLayout(new java.awt.GridBagLayout());
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jList1.setPreferredSize(new java.awt.Dimension(200, 300));
-        jScrollPane1.setViewportView(jList1);
+        connectedClientList.setPreferredSize(new java.awt.Dimension(200, 300));
+        listPane.setViewportView(connectedClientList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 11;
-        gridBagConstraints.gridheight = 23;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 97;
-        onlinePanel.add(jScrollPane1, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(39, 0, 9, 0);
+        onlinePanel.add(listPane, gridBagConstraints);
 
         exitButton.setText("Çıkış");
         exitButton.addActionListener(new java.awt.event.ActionListener() {
@@ -93,21 +117,113 @@ public class ClientFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         onlinePanel.add(exitButton, gridBagConstraints);
 
+        startChat_button.setText("Konuşma Başlat");
+        startChat_button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startChat_buttonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 2, 0);
+        onlinePanel.add(startChat_button, gridBagConstraints);
+
+        startchatroom_button.setText("Konuşma Odası Başlat");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 2, 0);
+        onlinePanel.add(startchatroom_button, gridBagConstraints);
+
+        messagesPane.setHorizontalScrollBar(null);
+        messagesPane.setPreferredSize(new java.awt.Dimension(400, 400));
+
+        chatBoxField.setEditable(false);
+        chatBoxField.setColumns(20);
+        chatBoxField.setRows(5);
+        chatBoxField.setText("Merhaba de!");
+        chatBoxField.setPreferredSize(new java.awt.Dimension(400, 400));
+        messagesPane.setViewportView(chatBoxField);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.ipadx = 19;
+        gridBagConstraints.ipady = 19;
+        gridBagConstraints.insets = new java.awt.Insets(38, 25, 8, 25);
+        onlinePanel.add(messagesPane, gridBagConstraints);
+
+        sendButton.setText("Gönder");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 20);
+        onlinePanel.add(sendButton, gridBagConstraints);
+
+        chatNameLabel.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        chatNameLabel.setText("Genel");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 24, 0, 5);
+        onlinePanel.add(chatNameLabel, gridBagConstraints);
+
+        jLabel1.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
+        jLabel1.setText("Uygulama Adı");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        onlinePanel.add(jLabel1, gridBagConstraints);
+
+        writeMessageField.setPreferredSize(new java.awt.Dimension(320, 40));
+        writeMessageField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                writeMessageFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 68);
+        onlinePanel.add(writeMessageField, gridBagConstraints);
+
         getContentPane().add(onlinePanel, "onlineCard");
 
+        menuPanel.setPreferredSize(new java.awt.Dimension(800, 700));
         menuPanel.setLayout(new java.awt.GridBagLayout());
 
         menuIconLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        menuIconLabel.setIcon(new javax.swing.ImageIcon("C:\\Users\\beyza\\OneDrive\\Pictures\\Saved Pictures\\black_formula_board_79691_1920x1080.jpg")); // NOI18N
         menuIconLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         menuIconLabel.setMaximumSize(new java.awt.Dimension(350, 350));
         menuIconLabel.setPreferredSize(new java.awt.Dimension(350, 350));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = java.awt.GridBagConstraints.RELATIVE;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridheight = 14;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 34, 0);
         menuPanel.add(menuIconLabel, gridBagConstraints);
+
+        usernameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        usernameTextField.setText("Kullanıcı Adı");
+        usernameTextField.setMaximumSize(new java.awt.Dimension(150, 60));
+        usernameTextField.setMinimumSize(new java.awt.Dimension(150, 60));
+        usernameTextField.setPreferredSize(new java.awt.Dimension(150, 60));
+        usernameTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                usernameTextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 26;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        menuPanel.add(usernameTextField, gridBagConstraints);
 
         connectButton.setText("Bağlan");
         connectButton.setPreferredSize(new java.awt.Dimension(150, 60));
@@ -118,23 +234,13 @@ public class ClientFrame extends javax.swing.JFrame {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.gridy = 26;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         menuPanel.add(connectButton, gridBagConstraints);
-
-        nicknameTextField.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        nicknameTextField.setText("Kullanıcı Adı");
-        nicknameTextField.setMaximumSize(new java.awt.Dimension(150, 60));
-        nicknameTextField.setMinimumSize(new java.awt.Dimension(150, 60));
-        nicknameTextField.setPreferredSize(new java.awt.Dimension(150, 60));
-        nicknameTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nicknameTextFieldActionPerformed(evt);
-            }
-        });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHEAST;
-        menuPanel.add(nicknameTextField, gridBagConstraints);
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 27;
+        menuPanel.add(menuMessageLabel, gridBagConstraints);
 
         getContentPane().add(menuPanel, "menuCard");
 
@@ -143,7 +249,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         // TODO add your handling code here:
-        cardLayout.show(getContentPane(), "onlineCard");
+        
     }//GEN-LAST:event_connectButtonActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
@@ -152,53 +258,119 @@ public class ClientFrame extends javax.swing.JFrame {
         cardLayout.show(getContentPane(), "menuCard");
     }//GEN-LAST:event_exitButtonActionPerformed
 
-    private void nicknameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nicknameTextFieldActionPerformed
+    private void usernameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameTextFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_nicknameTextFieldActionPerformed
+    }//GEN-LAST:event_usernameTextFieldActionPerformed
+
+    private void startChat_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startChat_buttonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_startChat_buttonActionPerformed
+
+    private void writeMessageFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_writeMessageFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_writeMessageFieldActionPerformed
+
+     public JList<String> getConnectedClientList() {
+        return connectedClientList;
+    }
+
+    public JButton getStartChat_button() {
+        return startChat_button;
+    }
+
+    public JButton getStartchatroom_button() {
+        return startchatroom_button;
+    }
+        //</editor-fold>
+
+    public JButton getExitButton() {
+        return exitButton;
+    }
+
+ 
+    
+    public JButton getConnectButton() {
+        return connectButton;
+    }
+
+    public JButton getSendButton() {
+        return sendButton;
+    }
+
+    public JTextField getWriteMessageField() {
+        return writeMessageField;
+    }
+
+    public JTextArea getChatBoxField() {
+        return chatBoxField;
+    }
+    
+   
+
+  
+    
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+//    public static void main(String args[]) {
+//        /* Set the Nimbus look and feel */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(ClientFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /* Create and display the form */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                new ClientFrame().setVisible(true);
+//            }
+//        });
+//    }
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ClientFrame().setVisible(true);
-            }
-        });
+    public JTextField getUsernameTextField() {
+        return usernameTextField;
     }
 
+    public JLabel getMenuMessageLabel() {
+        return menuMessageLabel;
+    }
+    
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea chatBoxField;
+    private javax.swing.JLabel chatNameLabel;
     private javax.swing.JButton connectButton;
+    private javax.swing.JList<String> connectedClientList;
     private javax.swing.JButton exitButton;
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane listPane;
     private javax.swing.JLabel menuIconLabel;
+    private javax.swing.JLabel menuMessageLabel;
     private javax.swing.JPanel menuPanel;
-    private javax.swing.JTextField nicknameTextField;
+    private javax.swing.JScrollPane messagesPane;
     private javax.swing.JPanel onlinePanel;
+    private javax.swing.JButton sendButton;
+    private javax.swing.JButton startChat_button;
+    private javax.swing.JButton startchatroom_button;
+    private javax.swing.JTextField usernameTextField;
+    private javax.swing.JTextField writeMessageField;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,2 +1,6 @@
 /ChatClient/nbproject/private/
 /ChatClient/build/
+/ChatServer/nbproject/private/
+/ChatServer/build/
+/ChatServer/dist/
+/ChatClient/dist/
