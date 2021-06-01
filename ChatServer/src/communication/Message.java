@@ -17,12 +17,18 @@ public class Message implements Serializable {
         INFO,
         DIRECT_CHAT,
         DIRECT_CHAT_REQUEST,
-        DIRECT_CHAT_START,
         GROUP_CHAT,
+        GROUP_CHAT_START,
+        GROUP_CHAT_REQUEST,
+        DIRECT_FILE,
+        GROUP_CHAT_MEMBERS,
+        GROUP_CHAT_FILE,
+        GROUP_CHAT_DELETE,
         CLIENT_MESSAGE,
         NEW_USERNAME,
         CONNECTED_CLIENTS,
         BROADCAST_MESSAGE,
+        BROADCAST_FILE,
         
     }
 
@@ -30,13 +36,24 @@ public class Message implements Serializable {
     private String msg_content;
     private String sender;
     private String receiver;
+    private byte[] fileContent;
 
     public Message(MessageType msg_type) {
         this.msg_type = msg_type;
         this.sender = "yollayan";
         this.receiver = "alan";
     }
+ 
 
+    public void setFileContent(byte[] fileContent) {
+        this.fileContent = fileContent;
+    }
+
+    public byte[] getFileContent() {
+        return fileContent;
+    }
+
+   
     public void setMsg_content(String msg_content) {
         this.msg_content = msg_content;
     }

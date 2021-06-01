@@ -9,6 +9,9 @@ import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultCaret;
+import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 
 /**
  *
@@ -23,14 +26,26 @@ public class ChattingFrame extends javax.swing.JFrame {
     
     public ChattingFrame(String friend_username) {
         initComponents();
+        
+        try{
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      }catch(Exception e){
+          System.out.println(e.toString());
+      }
+        
+        this.getContentPane().setBackground(new java.awt.Color(232,239,251));
         friend = friend_username;
         chatNameLabel.setText(friend_username);
-       // String v = "\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur gravida augue sed mauris laoreet volutpat. Etiam erat mauris, scelerisque non fringilla id, placerat ac massa. Sed ullamcorper, justo vel vulputate interdum, nisl metus vestibulum nunc, sit amet vestibulum quam orci non elit. Quisque in nisi dictum velit imperdiet laoreet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc auctor blandit convallis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus nunc ipsum, mattis at augue a, sollicitudin luctus nibh. Sed tincidunt gravida rhoncus. Donec volutpat diam sed massa blandit, id commodo mauris commodo. Donec ornare turpis sed est elementum lacinia. Quisque in nulla dapibus, ornare massa quis, euismod ex.\n";
-        String b = "me too!!!!!!!!\n";
+        String v = "\nLoremsggggggggggggggggggggggggg ipsum dolor sit amet, consectetur adipiscing elit. Curabitur gravida augue sed mauris laoreet volutpat. Etiam erat mauris, scelerisque non fringilla id, placerat ac massa. Sed ullamcorper, justo vel vulputate interdum, nisl metus vestibulum nunc, sit amet vestibulum quam orci non elit. Quisque in nisi dictum velit imperdiet laoreet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc auctor blandit convallis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus nunc ipsum, mattis at augue a, sollicitudin luctus nibh. Sed tincidunt gravida rhoncus. Donec volutpat diam sed massa blandit, id commodo mauris commodo. Donec ornare turpis sed est elementum lacinia. Quisque in nulla dapibus, ornare massa quis, euismod ex.\n";
+       
+        DefaultCaret caret = (DefaultCaret)(chatBoxField.getCaret());
+        caret.setUpdatePolicy(ALWAYS_UPDATE);
+        
         chatBoxField.setLineWrap(true);
         chatBoxField.setWrapStyleWord(true);
-     //   chatBoxField.append( v);
-        chatBoxField.append(b);
+        
+        this.setTitle(friend_username);
+    
         this.setVisible(true);
         
 
@@ -47,6 +62,10 @@ public class ChattingFrame extends javax.swing.JFrame {
     public JTextArea getChatBoxField() {
         return chatBoxField;
     }
+
+    public JButton getFileChooserButton() {
+        return fileChooserButton;
+    }
     
     
     
@@ -60,41 +79,16 @@ public class ChattingFrame extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        chatNameLabel = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
         chatBoxField = new javax.swing.JTextArea();
         sendButton = new javax.swing.JButton();
-        chatNameLabel = new javax.swing.JLabel();
         writeMessageField = new javax.swing.JTextField();
+        fileChooserButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setBackground(new java.awt.Color(179, 214, 228));
         getContentPane().setLayout(new java.awt.GridBagLayout());
-
-        jScrollPane1.setAutoscrolls(true);
-        jScrollPane1.setHorizontalScrollBar(null);
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(400, 400));
-
-        chatBoxField.setEditable(false);
-        chatBoxField.setColumns(20);
-        chatBoxField.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        chatBoxField.setRows(5);
-        chatBoxField.setText("Merhaba de!");
-        chatBoxField.setPreferredSize(new java.awt.Dimension(400, 400));
-        jScrollPane1.setViewportView(chatBoxField);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.ipadx = 19;
-        gridBagConstraints.ipady = 19;
-        gridBagConstraints.insets = new java.awt.Insets(38, 25, 8, 25);
-        getContentPane().add(jScrollPane1, gridBagConstraints);
-
-        sendButton.setText("Gönder");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(9, 28, 9, 32);
-        getContentPane().add(sendButton, gridBagConstraints);
 
         chatNameLabel.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         chatNameLabel.setText("Beyza");
@@ -102,11 +96,33 @@ public class ChattingFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
-        gridBagConstraints.insets = new java.awt.Insets(0, 24, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 3);
         getContentPane().add(chatNameLabel, gridBagConstraints);
 
-        writeMessageField.setText("Yaz...");
-        writeMessageField.setPreferredSize(new java.awt.Dimension(320, 40));
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(400, 400));
+
+        chatBoxField.setEditable(false);
+        chatBoxField.setColumns(20);
+        chatBoxField.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
+        chatBoxField.setRows(5);
+        jScrollPane2.setViewportView(chatBoxField);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(32, 14, 32, 14);
+        getContentPane().add(jScrollPane2, gridBagConstraints);
+
+        sendButton.setText("Gönder");
+        sendButton.setPreferredSize(new java.awt.Dimension(71, 45));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(9, 27, 9, 16);
+        getContentPane().add(sendButton, gridBagConstraints);
+
+        writeMessageField.setPreferredSize(new java.awt.Dimension(280, 40));
         writeMessageField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 writeMessageFieldActionPerformed(evt);
@@ -116,8 +132,17 @@ public class ChattingFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.gridheight = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 68);
+        gridBagConstraints.insets = new java.awt.Insets(0, 43, 0, 86);
         getContentPane().add(writeMessageField, gridBagConstraints);
+
+        fileChooserButton.setText("...");
+        fileChooserButton.setPreferredSize(new java.awt.Dimension(45, 45));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        getContentPane().add(fileChooserButton, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -164,7 +189,8 @@ public class ChattingFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea chatBoxField;
     private javax.swing.JLabel chatNameLabel;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton fileChooserButton;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton sendButton;
     private javax.swing.JTextField writeMessageField;
     // End of variables declaration//GEN-END:variables

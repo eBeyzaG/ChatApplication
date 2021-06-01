@@ -13,6 +13,8 @@ import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.text.DefaultCaret;
+import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 
 /**
  *
@@ -29,13 +31,13 @@ public class ClientFrame extends javax.swing.JFrame {
     
     public ClientFrame() {
         initComponents();
-        //copied code
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //copied code end
+     
+      
+      try{
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      }catch(Exception e){
+          System.out.println(e.toString());
+      }
         
         init_frame();
     }
@@ -50,6 +52,10 @@ public class ClientFrame extends javax.swing.JFrame {
         
         dlm = new DefaultListModel();
         connectedClientList.setModel(dlm);
+        
+        DefaultCaret caret = (DefaultCaret)(chatBoxField.getCaret());
+        caret.setUpdatePolicy(ALWAYS_UPDATE);
+        
         
     }
 
@@ -81,6 +87,8 @@ public class ClientFrame extends javax.swing.JFrame {
         chatNameLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         writeMessageField = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        fileChooserButton = new javax.swing.JButton();
         menuPanel = new javax.swing.JPanel();
         menuIconLabel = new javax.swing.JLabel();
         usernameTextField = new javax.swing.JTextField();
@@ -88,11 +96,17 @@ public class ClientFrame extends javax.swing.JFrame {
         menuMessageLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("hey!");
+        setBackground(new java.awt.Color(51, 255, 102));
         setPreferredSize(new java.awt.Dimension(950, 750));
         getContentPane().setLayout(new java.awt.CardLayout());
 
+        onlinePanel.setBackground(new java.awt.Color(232, 239, 251));
+        onlinePanel.setForeground(new java.awt.Color(232, 239, 251));
         onlinePanel.setPreferredSize(new java.awt.Dimension(810, 661));
         onlinePanel.setLayout(new java.awt.GridBagLayout());
+
+        listPane.setAutoscrolls(true);
 
         connectedClientList.setPreferredSize(new java.awt.Dimension(200, 300));
         listPane.setViewportView(connectedClientList);
@@ -117,7 +131,7 @@ public class ClientFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 0;
         onlinePanel.add(exitButton, gridBagConstraints);
 
-        startChat_button.setText("Konuşma Başlat");
+        startChat_button.setText("Özel Konuşma Başlat");
         startChat_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startChat_buttonActionPerformed(evt);
@@ -141,8 +155,10 @@ public class ClientFrame extends javax.swing.JFrame {
 
         chatBoxField.setEditable(false);
         chatBoxField.setColumns(20);
+        chatBoxField.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
         chatBoxField.setRows(5);
-        chatBoxField.setText("Merhaba de!");
+        chatBoxField.setText("Hey! de");
+        chatBoxField.setCaretPosition(0);
         chatBoxField.setPreferredSize(new java.awt.Dimension(400, 400));
         messagesPane.setViewportView(chatBoxField);
 
@@ -154,12 +170,13 @@ public class ClientFrame extends javax.swing.JFrame {
         onlinePanel.add(messagesPane, gridBagConstraints);
 
         sendButton.setText("Gönder");
+        sendButton.setPreferredSize(new java.awt.Dimension(75, 40));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 11;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
-        gridBagConstraints.insets = new java.awt.Insets(0, 14, 0, 20);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 22);
         onlinePanel.add(sendButton, gridBagConstraints);
 
         chatNameLabel.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
@@ -172,14 +189,14 @@ public class ClientFrame extends javax.swing.JFrame {
         onlinePanel.add(chatNameLabel, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
-        jLabel1.setText("Uygulama Adı");
+        jLabel1.setText("hey!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 10;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
         onlinePanel.add(jLabel1, gridBagConstraints);
 
-        writeMessageField.setPreferredSize(new java.awt.Dimension(320, 40));
+        writeMessageField.setPreferredSize(new java.awt.Dimension(290, 40));
         writeMessageField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 writeMessageFieldActionPerformed(evt);
@@ -189,19 +206,39 @@ public class ClientFrame extends javax.swing.JFrame {
         gridBagConstraints.gridx = 11;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridheight = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 68);
+        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 80);
         onlinePanel.add(writeMessageField, gridBagConstraints);
+
+        jLabel2.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel2.setText("Bağlı Kullanıcılar");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
+        onlinePanel.add(jLabel2, gridBagConstraints);
+
+        fileChooserButton.setText("...");
+        fileChooserButton.setPreferredSize(new java.awt.Dimension(45, 45));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(0, 21, 0, 0);
+        onlinePanel.add(fileChooserButton, gridBagConstraints);
 
         getContentPane().add(onlinePanel, "onlineCard");
 
+        menuPanel.setBackground(new java.awt.Color(232, 239, 251));
+        menuPanel.setForeground(new java.awt.Color(232, 239, 251));
+        menuPanel.setToolTipText("");
         menuPanel.setPreferredSize(new java.awt.Dimension(800, 700));
         menuPanel.setLayout(new java.awt.GridBagLayout());
 
         menuIconLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        menuIconLabel.setIcon(new javax.swing.ImageIcon("C:\\Users\\beyza\\OneDrive\\Pictures\\Saved Pictures\\black_formula_board_79691_1920x1080.jpg")); // NOI18N
+        menuIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo.png"))); // NOI18N
         menuIconLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-        menuIconLabel.setMaximumSize(new java.awt.Dimension(350, 350));
-        menuIconLabel.setPreferredSize(new java.awt.Dimension(350, 350));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 12;
@@ -304,6 +341,11 @@ public class ClientFrame extends javax.swing.JFrame {
     public JTextArea getChatBoxField() {
         return chatBoxField;
     }
+
+    public JButton getFileChooserButton() {
+        return fileChooserButton;
+    }
+    
     
    
 
@@ -360,7 +402,9 @@ public class ClientFrame extends javax.swing.JFrame {
     private javax.swing.JButton connectButton;
     private javax.swing.JList<String> connectedClientList;
     private javax.swing.JButton exitButton;
+    private javax.swing.JButton fileChooserButton;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane listPane;
     private javax.swing.JLabel menuIconLabel;
     private javax.swing.JLabel menuMessageLabel;

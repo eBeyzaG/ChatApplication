@@ -28,10 +28,9 @@ public class ServerClient {
     private boolean isConnected;
     private ServerClientListenThread listenThread;
     private Thread broadcastThread;
-    private Thread pairThread;
     private Message messageToBeBroadcasted;
     public ArrayList<ServerClient> direct_chats;
-    private ArrayList<Chatroom> chatrooms;
+    public ArrayList<String> clientChatrooms;
 
     public ServerClient(Socket socket, Server server) {
 
@@ -53,18 +52,8 @@ public class ServerClient {
     }
 
     public void init_server_client() {
-
-        broadcastThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (ServerClient sc : Server.connectedClients) {
-                    sc.sendMessage(messageToBeBroadcasted);
-                }
-            }
-        });
-
         direct_chats = new ArrayList<>();
-        chatrooms = new ArrayList<>();
+        clientChatrooms = new ArrayList<>();
     }
 
     public boolean getIsConnected() {
@@ -100,7 +89,15 @@ public class ServerClient {
     }
 
     public void broadcast_message(Message m) {
-        messageToBeBroadcasted = m;
+        final Message messageToBeBroadcasted = m;
+        broadcastThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (ServerClient sc : Server.connectedClients) {
+                    sc.sendMessage(messageToBeBroadcasted);
+                }
+            }
+        });
         this.broadcastThread.start();
     }
 
@@ -115,6 +112,13 @@ public class ServerClient {
             this.clientInput.close();
             this.clientOutput.close();
             this.isConnected = false;
+            
+            //remove from existing groups
+            for(String groupname: clientChatrooms){
+                Server.chatrooms.get(groupname).removeMember(this);
+            }
+            
+            
         } catch (IOException ex) {
             Logger.getLogger(ServerClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -131,17 +135,34 @@ public class ServerClient {
         }
     }
 
-
-    public void send_direct(Message m){
-        for(ServerClient sc: direct_chats){
-            if(m.getReceiver().equals(sc.getUsername())){
-                System.out.println(m.getSender() + " kişisi " + m.getReceiver() + " kişisine " + m.getMsg_content() + " mesajını yolluyor");
-                sc.sendMessage(m);
+    public void request_new_member(String newMember, String groupName) {
+        for (ServerClient sc : Server.connectedClients) {
+            if (sc.getUsername().equals(newMember)) {
+                Server.chatrooms.get(groupName).addMember(sc);
+                sc.clientChatrooms.add(groupName);
                 break;
             }
         }
     }
-    
+
+    public void send_direct(Message msg) {
+        final Message m = msg;
+        Thread newT = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (ServerClient sc : direct_chats) {
+                    if (m.getReceiver().equals(sc.getUsername())) {
+                        System.out.println(m.getSender() + " kişisi " + m.getReceiver() + " kişisine " + m.getMsg_content() + " mesajını yolluyor");
+                        sc.sendMessage(m);
+                        break;
+                    }
+                }
+            }
+        });
+        newT.start();
+
+    }
+
     public String getUsername() {
         return username;
     }
@@ -183,11 +204,44 @@ class ServerClientListenThread extends Thread {
                     case BROADCAST_MESSAGE:
                         serverClient.broadcast_message(message);
                         break;
+                    case BROADCAST_FILE:
+                        serverClient.broadcast_message(message);
+                        break;
                     case DIRECT_CHAT:
                         serverClient.send_direct(message);
                         break;
                     case DIRECT_CHAT_REQUEST:
                         serverClient.add_new_direct_chat(message.getReceiver(), message);
+                        break;
+                    case DIRECT_FILE:
+                        serverClient.send_direct(message);
+                        break;
+                    case GROUP_CHAT_START:
+                        if (Server.chatrooms.containsKey(message.getReceiver())) {
+                            this.serverClient.sendMessage(serverClient.createMessage(Message.MessageType.GROUP_CHAT_START, message.getReceiver(), "Groupchat name exists."));
+                        } else {
+                            Server.addGroup(message.getReceiver(), this.serverClient);
+                            this.serverClient.clientChatrooms.add(message.getReceiver());
+                        }
+                        break;
+                    case GROUP_CHAT_REQUEST://receiver is the group name, content is the new members username
+                        this.serverClient.request_new_member(message.getMsg_content(), message.getReceiver());
+                        break;
+                    case GROUP_CHAT:
+                        try {
+                            Server.chatrooms.get(message.getReceiver()).sendToGroupChat(message, this.serverClient);
+                        } catch (Exception e) {
+                            System.out.println("Group no longer exists");
+                        }
+
+                        break;
+                    case GROUP_CHAT_FILE:
+                        try {
+                            Server.chatrooms.get(message.getReceiver()).sendToGroupChat(message, this.serverClient);
+                        } catch (Exception e) {
+                            System.out.println("Group no longer exists");
+                        }
+
                         break;
                     default:
                         System.out.println("Default");
