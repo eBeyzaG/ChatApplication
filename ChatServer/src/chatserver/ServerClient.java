@@ -117,6 +117,8 @@ public class ServerClient {
 
         } catch (IOException ex) {
             Logger.getLogger(ServerClient.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e){
+            System.out.println(e.toString());
         }
     }
 
