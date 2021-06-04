@@ -16,11 +16,10 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author beyza
+ * @author beyza Server client class for each client connected to server
  */
 public class ServerClient {
 
-    private Server server;
     private String username;
     private Socket socket;
     private ObjectOutputStream clientOutput;
@@ -28,13 +27,11 @@ public class ServerClient {
     private boolean isConnected;
     private ServerClientListenThread listenThread;
     private Thread broadcastThread;
-    private Message messageToBeBroadcasted;
     public ArrayList<ServerClient> direct_chats;
     public ArrayList<String> clientChatrooms;
 
     public ServerClient(Socket socket, Server server) {
 
-        this.server = server;
         this.socket = socket;
 
         try {
@@ -61,7 +58,7 @@ public class ServerClient {
     }
 
     public Message createMessage(Message.MessageType msg_type, String receiver, String content) {
-
+        //creates message to be sent from server to client
         Message newMessage = new Message(msg_type);
         newMessage.setSender(this.username);
         newMessage.setReceiver(receiver);
@@ -88,7 +85,7 @@ public class ServerClient {
         return clientInput;
     }
 
-    public void broadcast_message(Message m) {
+    public void broadcast_message(Message m) {//broadcasts message from one client to all clients
         final Message messageToBeBroadcasted = m;
         broadcastThread = new Thread(new Runnable() {
             @Override
@@ -101,30 +98,30 @@ public class ServerClient {
         this.broadcastThread.start();
     }
 
-    public void listen() {
+    public void listen() {//starts listening thread
         this.isConnected = true;
         this.listenThread.start();
     }
 
-    public void close() {
+    public void close() {//disconnects client
         try {
             this.socket.close();
             this.clientInput.close();
             this.clientOutput.close();
             this.isConnected = false;
-            
+
             //remove from existing groups
-            for(String groupname: clientChatrooms){
+            for (String groupname : clientChatrooms) {
                 Server.chatrooms.get(groupname).removeMember(this);
             }
-            
-            
+
         } catch (IOException ex) {
             Logger.getLogger(ServerClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public void add_new_direct_chat(String new_direct, Message m) {
+        //adds new direct chat and notifies the other user
         for (ServerClient sc : Server.connectedClients) {
             if (sc.getUsername().equals(new_direct)) {
                 sc.direct_chats.add(this);
@@ -136,6 +133,7 @@ public class ServerClient {
     }
 
     public void request_new_member(String newMember, String groupName) {
+        //adds a new member to group chat and notifies new member
         for (ServerClient sc : Server.connectedClients) {
             if (sc.getUsername().equals(newMember)) {
                 Server.chatrooms.get(groupName).addMember(sc);
@@ -145,7 +143,7 @@ public class ServerClient {
         }
     }
 
-    public void send_direct(Message msg) {
+    public void send_direct(Message msg) {//sends direct msg to receiver client
         final Message m = msg;
         Thread newT = new Thread(new Runnable() {
             @Override
@@ -190,12 +188,13 @@ class ServerClientListenThread extends Thread {
             try {
                 Message message = (Message) (this.serverClient.getClientInput().readObject());
 
-                switch (message.getMsg_type()) {
+                switch (message.getMsg_type()) {//switches according to message type
 
                     case NEW_USERNAME:
                         if (!Server.usernameExists(message.getMsg_content().toString())) {
                             serverClient.setUsername(message.getMsg_content().toString());
                             serverClient.sendMessage(serverClient.createMessage(Message.MessageType.NEW_USERNAME, null, "Accepted"));
+                            System.out.println("Welcome" + message.getMsg_content().toString());
                             Server.broadcastConnectedClients();
                         } else {
                             serverClient.sendMessage(serverClient.createMessage(Message.MessageType.NEW_USERNAME, null, "Username exists"));
@@ -255,7 +254,13 @@ class ServerClientListenThread extends Thread {
                 Logger.getLogger(ServerClientListenThread.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {
                 this.serverClient.close();
+                Server.removeClient(this.serverClient);
                 Logger.getLogger(ServerClientListenThread.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception e) {
+                this.serverClient.close();
+                Server.removeClient(this.serverClient);
+
+                System.out.println("server client cannot be closed due to:" + e.toString());
             }
 
         }

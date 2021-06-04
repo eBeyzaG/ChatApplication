@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author beyza
+ * message class with message type, receiver, sender and content for communication between cli and server
  */
 public class ChatServer {
 

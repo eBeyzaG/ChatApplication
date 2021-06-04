@@ -30,7 +30,7 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="G&#xf6;nder"/>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[71, 45]"/>
+          <Dimension value="[75, 45]"/>
         </Property>
       </Properties>
       <Constraints>

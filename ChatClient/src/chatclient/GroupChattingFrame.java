@@ -7,6 +7,7 @@ package chatclient;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -18,6 +19,7 @@ import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 /**
  *
  * @author beyza
+ * group chatting frame 
  */
 public class GroupChattingFrame extends javax.swing.JFrame {
 
@@ -29,29 +31,28 @@ public class GroupChattingFrame extends javax.swing.JFrame {
 
     public GroupChattingFrame(String gName) {
         initComponents();
-        
-        try{
-          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      }catch(Exception e){
-          System.out.println(e.toString());
-      }
-          this.getContentPane().setBackground(new java.awt.Color(232,239,251));
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        this.getContentPane().setBackground(new java.awt.Color(239, 239, 239));
         group_name = gName;
         chatNameLabel.setText(group_name);
-        String v = "\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur gravida augue sed mauris laoreet volutpat. Etiam erat mauris, scelerisque non fringilla id, placerat ac massa. Sed ullamcorper, justo vel vulputate interdum, nisl metus vestibulum nunc, sit amet vestibulum quam orci non elit. Quisque in nisi dictum velit imperdiet laoreet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc auctor blandit convallis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus nunc ipsum, mattis at augue a, sollicitudin luctus nibh. Sed tincidunt gravida rhoncus. Donec volutpat diam sed massa blandit, id commodo mauris commodo. Donec ornare turpis sed est elementum lacinia. Quisque in nulla dapibus, ornare massa quis, euismod ex.\n";
-      
+       
         DefaultCaret caret = (DefaultCaret) (chatBoxField.getCaret());
-        caret.setUpdatePolicy(ALWAYS_UPDATE);
+        caret.setUpdatePolicy(ALWAYS_UPDATE); //automatically scroll to bottom when new text comes
 
         chatBoxField.setLineWrap(true);
         chatBoxField.setWrapStyleWord(true);
         chatBoxField.setAutoscrolls(true);
-        
+
         this.setTitle(gName);
-        
+
         dlm = new DefaultListModel();
         membersList.setModel(dlm);
-       
+
         this.setVisible(true);
 
     }
@@ -80,9 +81,10 @@ public class GroupChattingFrame extends javax.swing.JFrame {
         return fileChooserButton;
     }
 
-  
+    public JLabel getChatNameLabel() {
+        return chatNameLabel;
+    }
 
-    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -110,7 +112,7 @@ public class GroupChattingFrame extends javax.swing.JFrame {
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         sendButton.setText("Gönder");
-        sendButton.setPreferredSize(new java.awt.Dimension(71, 45));
+        sendButton.setPreferredSize(new java.awt.Dimension(75, 45));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;

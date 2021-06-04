@@ -16,6 +16,7 @@ import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 /**
  *
  * @author beyza
+ * direct chatting frame
  */
 public class ChattingFrame extends javax.swing.JFrame {
 
@@ -33,10 +34,9 @@ public class ChattingFrame extends javax.swing.JFrame {
           System.out.println(e.toString());
       }
         
-        this.getContentPane().setBackground(new java.awt.Color(232,239,251));
+        this.getContentPane().setBackground(new java.awt.Color(239,239,239));
         friend = friend_username;
         chatNameLabel.setText(friend_username);
-        String v = "\nLoremsggggggggggggggggggggggggg ipsum dolor sit amet, consectetur adipiscing elit. Curabitur gravida augue sed mauris laoreet volutpat. Etiam erat mauris, scelerisque non fringilla id, placerat ac massa. Sed ullamcorper, justo vel vulputate interdum, nisl metus vestibulum nunc, sit amet vestibulum quam orci non elit. Quisque in nisi dictum velit imperdiet laoreet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc auctor blandit convallis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vivamus nunc ipsum, mattis at augue a, sollicitudin luctus nibh. Sed tincidunt gravida rhoncus. Donec volutpat diam sed massa blandit, id commodo mauris commodo. Donec ornare turpis sed est elementum lacinia. Quisque in nulla dapibus, ornare massa quis, euismod ex.\n";
        
         DefaultCaret caret = (DefaultCaret)(chatBoxField.getCaret());
         caret.setUpdatePolicy(ALWAYS_UPDATE);
@@ -110,11 +110,11 @@ public class ChattingFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(32, 14, 32, 14);
+        gridBagConstraints.insets = new java.awt.Insets(32, 14, 9, 14);
         getContentPane().add(jScrollPane2, gridBagConstraints);
 
         sendButton.setText("Gönder");
-        sendButton.setPreferredSize(new java.awt.Dimension(71, 45));
+        sendButton.setPreferredSize(new java.awt.Dimension(75, 45));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;

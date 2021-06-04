@@ -6,7 +6,13 @@
 package chatclient;
 
 import java.awt.CardLayout;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -18,52 +24,54 @@ import static javax.swing.text.DefaultCaret.ALWAYS_UPDATE;
 
 /**
  *
- * @author beyza
+ * @author beyza user interface class that includes the menu and main page
  */
 public class ClientFrame extends javax.swing.JFrame {
 
     /**
      * Creates new form ClientFrame
      */
-    
     CardLayout cardLayout;
     DefaultListModel dlm;
-    
+
     public ClientFrame() {
         initComponents();
-     
-      
-      try{
-          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      }catch(Exception e){
-          System.out.println(e.toString());
-      }
-        
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
         init_frame();
     }
-    
-    void init_frame(){
+
+    void init_frame() {
+
+        try {
+            BufferedImage logoImg = ImageIO.read(getClass().getResource("/images/logo2.png"));
+            menuIconLabel.setIcon(new ImageIcon(logoImg));
+        } catch (IOException ex) {
+            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         chatBoxField.setLineWrap(true);
         chatBoxField.setWrapStyleWord(true);
-        
-        cardLayout = (CardLayout)getContentPane().getLayout();
+
+        cardLayout = (CardLayout) getContentPane().getLayout();
         cardLayout.show(getContentPane(), "menuCard");
-        
+
         dlm = new DefaultListModel();
         connectedClientList.setModel(dlm);
-        
-        DefaultCaret caret = (DefaultCaret)(chatBoxField.getCaret());
+
+        DefaultCaret caret = (DefaultCaret) (chatBoxField.getCaret());
         caret.setUpdatePolicy(ALWAYS_UPDATE);
-        
-        
+
     }
 
     public DefaultListModel getDlm() {
         return dlm;
     }
-    
- 
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -94,6 +102,7 @@ public class ClientFrame extends javax.swing.JFrame {
         usernameTextField = new javax.swing.JTextField();
         connectButton = new javax.swing.JButton();
         menuMessageLabel = new javax.swing.JLabel();
+        settingsButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("hey!");
@@ -101,7 +110,7 @@ public class ClientFrame extends javax.swing.JFrame {
         setPreferredSize(new java.awt.Dimension(950, 750));
         getContentPane().setLayout(new java.awt.CardLayout());
 
-        onlinePanel.setBackground(new java.awt.Color(232, 239, 251));
+        onlinePanel.setBackground(new java.awt.Color(239, 239, 239));
         onlinePanel.setForeground(new java.awt.Color(232, 239, 251));
         onlinePanel.setPreferredSize(new java.awt.Dimension(810, 661));
         onlinePanel.setLayout(new java.awt.GridBagLayout());
@@ -230,14 +239,13 @@ public class ClientFrame extends javax.swing.JFrame {
 
         getContentPane().add(onlinePanel, "onlineCard");
 
-        menuPanel.setBackground(new java.awt.Color(232, 239, 251));
+        menuPanel.setBackground(new java.awt.Color(239, 239, 239));
         menuPanel.setForeground(new java.awt.Color(232, 239, 251));
         menuPanel.setToolTipText("");
         menuPanel.setPreferredSize(new java.awt.Dimension(800, 700));
         menuPanel.setLayout(new java.awt.GridBagLayout());
 
         menuIconLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        menuIconLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo.png"))); // NOI18N
         menuIconLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -279,6 +287,17 @@ public class ClientFrame extends javax.swing.JFrame {
         gridBagConstraints.gridy = 27;
         menuPanel.add(menuMessageLabel, gridBagConstraints);
 
+        settingsButton.setBackground(new java.awt.Color(232, 221, 218));
+        settingsButton.setForeground(new java.awt.Color(0, 0, 0));
+        settingsButton.setText("Settings");
+        settingsButton.setPreferredSize(new java.awt.Dimension(40, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 28;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.insets = new java.awt.Insets(27, 0, 0, 0);
+        menuPanel.add(settingsButton, gridBagConstraints);
+
         getContentPane().add(menuPanel, "menuCard");
 
         pack();
@@ -286,7 +305,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
     private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_connectButtonActionPerformed
 
     private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
@@ -307,7 +326,7 @@ public class ClientFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_writeMessageFieldActionPerformed
 
-     public JList<String> getConnectedClientList() {
+    public JList<String> getConnectedClientList() {
         return connectedClientList;
     }
 
@@ -318,14 +337,16 @@ public class ClientFrame extends javax.swing.JFrame {
     public JButton getStartchatroom_button() {
         return startchatroom_button;
     }
-        //</editor-fold>
+    //</editor-fold>
 
     public JButton getExitButton() {
         return exitButton;
     }
 
- 
-    
+    public JButton getSettingsButton() {
+        return settingsButton;
+    }
+
     public JButton getConnectButton() {
         return connectButton;
     }
@@ -345,12 +366,6 @@ public class ClientFrame extends javax.swing.JFrame {
     public JButton getFileChooserButton() {
         return fileChooserButton;
     }
-    
-    
-   
-
-  
-    
 
     /**
      * @param args the command line arguments
@@ -386,7 +401,6 @@ public class ClientFrame extends javax.swing.JFrame {
 //            }
 //        });
 //    }
-
     public JTextField getUsernameTextField() {
         return usernameTextField;
     }
@@ -394,8 +408,8 @@ public class ClientFrame extends javax.swing.JFrame {
     public JLabel getMenuMessageLabel() {
         return menuMessageLabel;
     }
-    
-   
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea chatBoxField;
     private javax.swing.JLabel chatNameLabel;
@@ -412,6 +426,7 @@ public class ClientFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane messagesPane;
     private javax.swing.JPanel onlinePanel;
     private javax.swing.JButton sendButton;
+    private javax.swing.JButton settingsButton;
     private javax.swing.JButton startChat_button;
     private javax.swing.JButton startchatroom_button;
     private javax.swing.JTextField usernameTextField;

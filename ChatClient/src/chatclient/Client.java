@@ -5,6 +5,7 @@
  */
 package chatclient;
 
+import communication.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,6 +18,7 @@ import javafx.beans.Observable;
 /**
  *
  * @author beyza
+ * client model
  */
 public class Client {
 
@@ -29,7 +31,6 @@ public class Client {
     private String server_ip;
     private int serverPort;
 
-    private ClientListenThread listenThread;
 
     public Client(String server_ip, int serverPort) {
 
@@ -41,7 +42,7 @@ public class Client {
 
     }
 
-    private void connect() {
+    private void connect() {//connects the client to server
 
         System.out.println("Connecting to server...");
 
@@ -58,13 +59,9 @@ public class Client {
 
     }
 
-    private void startListenThread() {
-        this.listenThread = new ClientListenThread(this);
-        this.isConnected = true;
-        this.listenThread.start();
-    }
 
-    public void close() {
+
+    public void close() {//terminate the client
         try {
             this.socket.close();
             this.clientOutput.close();
@@ -75,7 +72,7 @@ public class Client {
         }
     }
 
-    public void sendMessage(Object message){
+    public void sendMessage(Message message){//send message from client to server
         try {
             clientOutput.writeObject(message);
         } catch (IOException ex) {
@@ -102,21 +99,4 @@ public class Client {
 }
 
 
-//redundant
-class ClientListenThread extends Thread {
 
-    private Client client;
-
-    public ClientListenThread(Client client) {
-        this.client = client;
-    }
-
-    @Override
-    public void run() {
-
-        while (this.client.getIsConnected()) {
-
-        }
-    }
-
-}

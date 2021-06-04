@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author beyza
+ * @author beyza controller class that connects ui and model
  */
 public class Controller {
 
@@ -34,6 +34,7 @@ public class Controller {
     TreeMap<String, GroupChattingFrame> groupchats;
     ArrayList<String> connecteds;
     String dirPath;
+    String address;
 
     public Controller(ClientFrame clientFrame, Client client) {
         new File(System.getProperty("user.home") + "/GelenDosyalar").mkdirs();
@@ -42,7 +43,8 @@ public class Controller {
         chats = new ArrayList<>();
         groupchats = new TreeMap<>();
         connecteds = new ArrayList<>();
-        
+        address ="127.0.0.1";//"18.188.102.9";//"127.0.0.1"; /
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 clientFrame.setVisible(true);
@@ -51,24 +53,29 @@ public class Controller {
 
     }
 
-    public void recreate_client() {
+    public void recreate_client() {//recreate client properties when user exits or enters wrong server
         chats = new ArrayList<>();
         groupchats = new TreeMap<>();
         connecteds = new ArrayList<>();
+        clientFrame.getChatBoxField().setText("Hey! de");
         clientFrame.getConnectButton()
                 .addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent ae
                     ) {
-                        System.out.println("connect e basıldı");
-                        connectToServer();
+                        try {
+                            connectToServer();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(clientFrame, "Sunucu yanıt vermiyor.");
+                            recreate_client();
+                        }
 
                     }
                 }
                 );
     }
 
-    public Thread createListenThread(Client c) {
+    public Thread createListenThread(Client c) {//creates listening thread for the current client
         return new Thread(new Runnable() {
             public void run() {
                 while (client.getIsConnected()) {
@@ -78,8 +85,8 @@ public class Controller {
                         Message newmsg = (Message) (client.getClientInput().readObject());
                         System.out.println("sender: " + newmsg.getSender() + " receiver:" + newmsg.getReceiver());
 
-                        switch (newmsg.getMsg_type()) {
-                            case NEW_USERNAME:
+                        switch (newmsg.getMsg_type()) {//switches to appropriate case according to message's type
+                            case NEW_USERNAME://check whether the chosen un is accepted by server or not
                                 if (newmsg.getMsg_content().equals("Accepted")) {
                                     clientFrame.cardLayout.show(clientFrame.getContentPane(), "onlineCard");
                                 } else {
@@ -92,16 +99,16 @@ public class Controller {
                                     });
                                 }
                                 break;
-                            case CONNECTED_CLIENTS:
+                            case CONNECTED_CLIENTS://receive current connected clients
                                 connectedClients = newmsg.getMsg_content();
                                 update_connected_list();
                                 break;
-                            case BROADCAST_MESSAGE:
+                            case BROADCAST_MESSAGE://receive the broadcasted msg
                                 String msgToShow = "";
-                                msgToShow += "\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content();
+                                msgToShow += "\n[" + newmsg.getSender() + "]: " + newmsg.getMsg_content();
                                 clientFrame.getChatBoxField().append(msgToShow);
                                 break;
-                            case BROADCAST_FILE:
+                            case BROADCAST_FILE://receive the broadcasted file
                                 int confirm2 = JOptionPane.showConfirmDialog(clientFrame, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
                                 if (confirm2 == JOptionPane.YES_OPTION) {
                                     byte[] newFileContent = (byte[]) newmsg.getFileContent();
@@ -110,25 +117,26 @@ public class Controller {
                                         Files.write(newFile.toPath(), newFileContent);
                                     } catch (Exception e) {
                                         JOptionPane.showMessageDialog(clientFrame, "Gelen dosyayı kaydetmekle ilgili bir sorun oluştu.");
+                                        System.out.println(e.toString());
                                     }
                                 }
-                                clientFrame.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
+                                clientFrame.getChatBoxField().append("\n[" + newmsg.getSender() + "]: " + newmsg.getMsg_content());
 
                                 break;
-                            case DIRECT_CHAT_REQUEST:
+                            case DIRECT_CHAT_REQUEST://create frame with incoming request
                                 //to do: accept request
                                 System.out.println("istek gelene kişi: " + newmsg.getSender());
                                 create_chat_frame(newmsg.getSender());
                                 break;
-                            case DIRECT_CHAT:
+                            case DIRECT_CHAT://receive direct chat
                                 for (ChattingFrame cf : chats) {
                                     if (cf.friend.equals(newmsg.getSender())) {
-                                        cf.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
+                                        cf.getChatBoxField().append("\n[" + newmsg.getSender() + "]: " + newmsg.getMsg_content());
                                         break;
                                     }
                                 }
                                 break;
-                            case DIRECT_FILE:
+                            case DIRECT_FILE://receive direct file
                                 for (ChattingFrame cf : chats) {
                                     if (cf.friend.equals(newmsg.getSender())) {
                                         int confirm = JOptionPane.showConfirmDialog(cf, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
@@ -141,16 +149,19 @@ public class Controller {
                                                 JOptionPane.showMessageDialog(cf, "Gelen dosyayı kaydetmekle ilgili bir sorun oluştu.");
                                             }
                                         }
-                                        cf.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
+                                        cf.getChatBoxField().append("\n[" + newmsg.getSender() + "]: " + newmsg.getMsg_content());
                                         break;
                                     }
                                 }
                                 break;
-                            case GROUP_CHAT_START:
+                            case GROUP_CHAT_START://check cwhether chosen group name is ok with server
                                 if (groupchats.containsKey(newmsg.getReceiver())) {
                                     GroupChattingFrame problematicGcf = groupchats.get(newmsg.getReceiver());
                                     String newName = JOptionPane.showInputDialog(problematicGcf, "Bu konuşma odası adı zaten var. Lütfen başka bir ad giriniz.");
                                     problematicGcf.group_name = newName;
+                                    groupchats.remove(newmsg.getReceiver());
+                                    groupchats.put(newName, problematicGcf);
+                                    problematicGcf.getChatNameLabel().setText(newName);
                                     sendMessage(Message.MessageType.GROUP_CHAT_START, newName, null);
                                     break;
                                 } else {
@@ -158,7 +169,7 @@ public class Controller {
                                 }
 
                                 break;
-                            case GROUP_CHAT_MEMBERS:
+                            case GROUP_CHAT_MEMBERS://receive group chat member info
                                 update_group_members(groupchats.get(newmsg.getReceiver()), newmsg.getMsg_content());
                                 break;
                             case GROUP_CHAT_REQUEST:
@@ -166,11 +177,11 @@ public class Controller {
                                     create_group_chat_frame(newmsg.getReceiver());
                                 }
                                 break;
-                            case GROUP_CHAT:
-                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
+                            case GROUP_CHAT://receive group chat message
+                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + "[" + newmsg.getSender() + "]: " + newmsg.getMsg_content());
 
                                 break;
-                            case GROUP_CHAT_FILE:
+                            case GROUP_CHAT_FILE://receive group chat file
                                 GroupChattingFrame currentFrm = groupchats.get(newmsg.getReceiver());
 
                                 int confirm = JOptionPane.showConfirmDialog(currentFrm, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
@@ -184,7 +195,7 @@ public class Controller {
                                     }
                                 }
 
-                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
+                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + "[" + newmsg.getSender() + "]: " + newmsg.getMsg_content());
                                 break;
 
                             default:
@@ -216,142 +227,6 @@ public class Controller {
     }
 
     public void init_controller() {
-        //  clientFrame.getConnectButton().addActionListener(ae -> saveUsername());
-        //connect button listeners
-        /*lisThread = new Thread(new Runnable() {
-            public void run() {
-                while (client.getIsConnected()) {
-                    try {
-                        System.out.println("Waiting for message from server.");
-
-                        Message newmsg = (Message) (client.getClientInput().readObject());
-                        System.out.println("sender: " + newmsg.getSender() + " receiver:" + newmsg.getReceiver());
-
-                        switch (newmsg.getMsg_type()) {
-                            case NEW_USERNAME:
-                                if (newmsg.getMsg_content().equals("Accepted")) {
-                                    clientFrame.cardLayout.show(clientFrame.getContentPane(), "onlineCard");
-                                } else {
-                                    clientFrame.getMenuMessageLabel().setText("Kullanıcı adı kullanılıyor.");
-                                    clientFrame.getConnectButton().setText("Tekrar dene");
-                                    clientFrame.getConnectButton().addActionListener(al -> {
-                                        System.out.println("Username sent again.");
-                                        client.setUsername(clientFrame.getUsernameTextField().getText());
-                                        sendMessage(Message.MessageType.NEW_USERNAME, null, client.getUsername());
-                                    });
-                                }
-                                break;
-                            case CONNECTED_CLIENTS:
-                                connectedClients = newmsg.getMsg_content();
-                                update_connected_list();
-                                break;
-                            case BROADCAST_MESSAGE:
-                                String msgToShow = "";
-                                msgToShow += "\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content();
-                                clientFrame.getChatBoxField().append(msgToShow);
-                                break;
-                            case BROADCAST_FILE:
-                                int confirm2 = JOptionPane.showConfirmDialog(clientFrame, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
-                                if (confirm2 == JOptionPane.YES_OPTION) {
-                                    byte[] newFileContent = (byte[]) newmsg.getFileContent();
-                                    try {
-                                        File newFile = new File(dirPath + "/" + newmsg.getMsg_content());
-                                        Files.write(newFile.toPath(), newFileContent);
-                                    } catch (Exception e) {
-                                        JOptionPane.showMessageDialog(clientFrame, "Gelen dosyayı kaydetmekle ilgili bir sorun oluştu.");
-                                    }
-                                }
-                                clientFrame.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
-
-                                break;
-                            case DIRECT_CHAT_REQUEST:
-                                //to do: accept request
-                                System.out.println("istek gelene kişi: " + newmsg.getSender());
-                                create_chat_frame(newmsg.getSender());
-                                break;
-                            case DIRECT_CHAT:
-                                for (ChattingFrame cf : chats) {
-                                    if (cf.friend.equals(newmsg.getSender())) {
-                                        cf.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
-                                        break;
-                                    }
-                                }
-                                break;
-                            case DIRECT_FILE:
-                                for (ChattingFrame cf : chats) {
-                                    if (cf.friend.equals(newmsg.getSender())) {
-                                        int confirm = JOptionPane.showConfirmDialog(cf, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
-                                        if (confirm == JOptionPane.YES_OPTION) {
-                                            byte[] newFileContent = (byte[]) newmsg.getFileContent();
-                                            try {
-                                                File newFile = new File(dirPath + "/" + newmsg.getMsg_content());
-                                                Files.write(newFile.toPath(), newFileContent);
-                                            } catch (Exception e) {
-                                                JOptionPane.showMessageDialog(cf, "Gelen dosyayı kaydetmekle ilgili bir sorun oluştu.");
-                                            }
-                                        }
-                                        cf.getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
-                                        break;
-                                    }
-                                }
-                                break;
-                            case GROUP_CHAT_START:
-                                if (groupchats.containsKey(newmsg.getReceiver())) {
-                                    GroupChattingFrame problematicGcf = groupchats.get(newmsg.getReceiver());
-                                    String newName = JOptionPane.showInputDialog(problematicGcf, "Bu grup adı zaten var. Lütfen başka bir ad giriniz.");
-                                    problematicGcf.group_name = newName;
-                                    sendMessage(Message.MessageType.GROUP_CHAT_START, newName, null);
-                                    break;
-                                } else {
-                                    System.out.println("There is no group with this name.");
-                                }
-
-                                break;
-                            case GROUP_CHAT_MEMBERS:
-                                update_group_members(groupchats.get(newmsg.getReceiver()), newmsg.getMsg_content());
-                                break;
-                            case GROUP_CHAT_REQUEST:
-                                if (!groupchats.containsKey(newmsg.getReceiver())) {
-                                    create_group_chat_frame(newmsg.getReceiver());
-                                }
-                                break;
-                            case GROUP_CHAT:
-                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
-
-                                break;
-                            case GROUP_CHAT_FILE:
-                                GroupChattingFrame currentFrm = groupchats.get(newmsg.getReceiver());
-
-                                int confirm = JOptionPane.showConfirmDialog(currentFrm, newmsg.getSender() + " kişisi " + newmsg.getMsg_content() + " dosyasını gönderdi. İndirmeyi kabul ediyor musunuz?");
-                                if (confirm == JOptionPane.YES_OPTION) {
-                                    byte[] newFileContent = (byte[]) newmsg.getFileContent();
-                                    try {
-                                        File newFile = new File(dirPath + "/" + newmsg.getMsg_content());
-                                        Files.write(newFile.toPath(), newFileContent);
-                                    } catch (Exception e) {
-                                        JOptionPane.showMessageDialog(currentFrm, "Gelen dosyayı kaydetmekle ilgili bir sorun oluştu.");
-                                    }
-                                }
-
-                                groupchats.get(newmsg.getReceiver()).getChatBoxField().append("\n" + newmsg.getSender() + ":\n" + newmsg.getMsg_content());
-                                break;
-
-                            default:
-                                System.out.println("default");
-                                break;
-                        }
-
-                    } catch (IOException ex) {
-                        client.close();
-                        Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (ClassNotFoundException ex) {
-                        client.close();
-                        Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-        );*/
 
         //server'a bağlanma butonu
         clientFrame.getConnectButton()
@@ -360,7 +235,12 @@ public class Controller {
                     public void actionPerformed(ActionEvent ae
                     ) {
                         System.out.println("connect e basıldı");
-                        connectToServer();
+                        try {
+                            connectToServer();
+                        } catch (Exception e) {
+                            JOptionPane.showMessageDialog(clientFrame, "Sunucu yanıt vermiyor.");
+                            recreate_client();
+                        }
 
                     }
                 }
@@ -423,7 +303,7 @@ public class Controller {
                             Message newFileMessage = createMessage(Message.MessageType.BROADCAST_FILE, null, chosenFile.getName());
                             newFileMessage.setFileContent(fileContent);
                             client.sendMessage(newFileMessage);
-                            clientFrame.getChatBoxField().append("\nBen:\n" + chosenFile.getName());
+                            clientFrame.getChatBoxField().append("\n[Ben]: " + chosenFile.getName());
 
                         } catch (IOException ex) {
                             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
@@ -440,22 +320,26 @@ public class Controller {
             client = null;
             recreate_client();
         });
+        //server değiştir
+        clientFrame.getSettingsButton().addActionListener(al -> {
+            address = JOptionPane.showInputDialog(clientFrame, "Sunucu değiştir", address);
+        });
     }
 
-    private void create_chat_frame(String dm_partner) {
+    private void create_chat_frame(String dm_partner) {//create chat frame with partner
         ChattingFrame newChatFrame = new ChattingFrame(dm_partner);
 
         newChatFrame.getSendButton().addActionListener(al -> {
             sendMessage(Message.MessageType.DIRECT_CHAT, newChatFrame.friend, newChatFrame.getWriteMessageField().getText());
             System.out.println("frame friende yollanıyor: " + newChatFrame.friend);
-            newChatFrame.getChatBoxField().append("\nBen:\n" + newChatFrame.getWriteMessageField().getText());
+            newChatFrame.getChatBoxField().append("\n[Ben]: " + newChatFrame.getWriteMessageField().getText());
             newChatFrame.getWriteMessageField().setText("");
         });
 
         newChatFrame.getWriteMessageField().addActionListener(al -> {
             sendMessage(Message.MessageType.DIRECT_CHAT, newChatFrame.friend, newChatFrame.getWriteMessageField().getText());
             System.out.println("frame friende yollanıyor: " + newChatFrame.friend);
-            newChatFrame.getChatBoxField().append("\nBen:\n" + newChatFrame.getWriteMessageField().getText());
+            newChatFrame.getChatBoxField().append("\n[Ben]: " + newChatFrame.getWriteMessageField().getText());
             newChatFrame.getWriteMessageField().setText("");
         });
 
@@ -471,7 +355,7 @@ public class Controller {
                     Message newFileMessage = createMessage(Message.MessageType.DIRECT_FILE, newChatFrame.friend, chosenFile.getName());
                     newFileMessage.setFileContent(fileContent);
                     client.sendMessage(newFileMessage);
-                    newChatFrame.getChatBoxField().append("\nBen:\n" + chosenFile.getName());
+                    newChatFrame.getChatBoxField().append("\n[Ben]: " + chosenFile.getName());
 
                 } catch (IOException ex) {
                     Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
@@ -485,20 +369,11 @@ public class Controller {
         chats.add(newChatFrame);
     }
 
-    private void create_group_chat_frame(String groupName) {
+    private void create_group_chat_frame(String groupName) {//create new chat frame for group chatting
 
         Object[] cnc = connecteds.toArray();
         GroupChattingFrame newGroupFrame = new GroupChattingFrame(groupName);
         newGroupFrame.getAddFriendToGroup_button().addActionListener(al -> {
-            /* String returnedValue = (String) JOptionPane.showInputDialog(
-                    newGroupFrame,
-                    "Ekleyecek üye seçiniz.",
-                    "Üye ekle",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    cnc,
-                    "Seç"
-            );*/
             String returnedValue = JOptionPane.showInputDialog(newGroupFrame, "Eklemek istediğiniz kullanıcı adını giriniz.");
             if (returnedValue.equals(null)) {
                 return;
@@ -509,14 +384,14 @@ public class Controller {
         newGroupFrame.getSendButton().addActionListener(al -> {
             sendMessage(Message.MessageType.GROUP_CHAT, newGroupFrame.group_name, newGroupFrame.getWriteMessageField().getText());
             System.out.println("şu gruba yollanıyor: " + newGroupFrame.group_name);
-            newGroupFrame.getChatBoxField().append("\nBen:\n" + newGroupFrame.getWriteMessageField().getText());
+            newGroupFrame.getChatBoxField().append("\n[Ben]: " + newGroupFrame.getWriteMessageField().getText());
             newGroupFrame.getWriteMessageField().setText("");
         });
 
         newGroupFrame.getWriteMessageField().addActionListener(al -> {
             sendMessage(Message.MessageType.GROUP_CHAT, newGroupFrame.group_name, newGroupFrame.getWriteMessageField().getText());
             System.out.println("şu gruba yollanıyor: " + newGroupFrame.group_name);
-            newGroupFrame.getChatBoxField().append("\nBen:\n" + newGroupFrame.getWriteMessageField().getText());
+            newGroupFrame.getChatBoxField().append("\n[Ben]: " + newGroupFrame.getWriteMessageField().getText());
             newGroupFrame.getWriteMessageField().setText("");
         });
 
@@ -532,7 +407,7 @@ public class Controller {
                     Message newFileMessage = createMessage(Message.MessageType.GROUP_CHAT_FILE, newGroupFrame.group_name, chosenFile.getName());
                     newFileMessage.setFileContent(fileContent);
                     client.sendMessage(newFileMessage);
-                    newGroupFrame.getChatBoxField().append("\nBen:\n" + chosenFile.getName());
+                    newGroupFrame.getChatBoxField().append("\n[Ben]: " + chosenFile.getName());
 
                 } catch (IOException ex) {
                     Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
@@ -546,9 +421,9 @@ public class Controller {
         groupchats.put(newGroupFrame.group_name, newGroupFrame);
     }
 
-    private void connectToServer() {
+    private void connectToServer() { //connect to server with given ip
 
-        this.client = new Client("127.0.0.1", 5000);
+        this.client = new Client(address, 5000);
         client.setUsername(clientFrame.getUsernameTextField().getText());
         System.out.println("client username: " + client.getUsername());
 
@@ -559,7 +434,7 @@ public class Controller {
         System.out.println("Username sent.");
     }
 
-    private void update_connected_list() {
+    private void update_connected_list() {//update the connected clients list in main page
         clientFrame.getDlm().clear();
 
         String usernames[] = connectedClients.split("\n");
@@ -578,7 +453,7 @@ public class Controller {
 
     }
 
-    private void update_group_members(GroupChattingFrame gcf, String members) {
+    private void update_group_members(GroupChattingFrame gcf, String members) { //update the members of the given gc 
 
         gcf.dlm.clear();
 
@@ -590,7 +465,7 @@ public class Controller {
     }
 
     private Message createMessage(Message.MessageType msg_type, String receiver, String content) {
-
+        //create Message type with given parameters
         Message newMessage = new Message(msg_type);
         newMessage.setSender(client.getUsername());
         newMessage.setReceiver(receiver);
@@ -601,6 +476,7 @@ public class Controller {
     }
 
     private void sendMessage(Message.MessageType msg_type, String receiver, String msg) {
+        //send the message to server from the current client
         client.sendMessage(createMessage(msg_type, receiver, msg));
     }
 

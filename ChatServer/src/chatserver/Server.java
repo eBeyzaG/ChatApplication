@@ -18,12 +18,12 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author beyza
+ * @author beyza server class
  */
 public class Server {
 
-    public static List<ServerClient> connectedClients;
-    public static TreeMap<String, Chatroom> chatrooms;
+    public static List<ServerClient> connectedClients;//stores all connected clients
+    public static TreeMap<String, Chatroom> chatrooms;//map structure to store groups groupname->chatroom
 
     private ServerSocket serverSocket;
     private int port;
@@ -42,19 +42,24 @@ public class Server {
         init_server();
     }
 
-    public void init_server() {
+    public void init_server() {//initializes server variables
         connectedClients = new ArrayList<>();
         chatrooms = new TreeMap<String, Chatroom>();
 
-        groupCleaner = new Thread(new Runnable() {
+        groupCleaner = new Thread(new Runnable() {//thread to remove groups with 0 members
             @Override
             public void run() {
                 //todo
-                for (Map.Entry<String, Chatroom> entry : chatrooms.entrySet()) {
+                while(true){
+                 for (Map.Entry<String, Chatroom> entry : chatrooms.entrySet()) {
+                   
                     if (entry.getValue().getMemberCount() == 0) {
                         removeGroup(entry.getValue().getGroupName());
                     }
                 }
+                
+                }
+               
             }
         });
 
@@ -62,15 +67,16 @@ public class Server {
 
     }
 
-    public static synchronized void addGroup(String groupName, ServerClient sc) {
+    public static synchronized void addGroup(String groupName, ServerClient sc) {//adds new group to map
         chatrooms.put(groupName, new Chatroom(groupName, sc));
 
     }
 
-    public synchronized void removeGroup(String groupName) {
+    public synchronized void removeGroup(String groupName) {//removes group from chatrooms map
         chatrooms.remove(groupName);
     }
 
+    //client operations on connectedClients list
     public synchronized void addClient(ServerClient newClient) {
         connectedClients.add(newClient);
     }
@@ -81,9 +87,12 @@ public class Server {
 
             if (connectedClients.get(i).getUsername().equals(removedClient.getUsername())) {
                 connectedClients.remove(i);
+                break;
             }
 
         }
+
+        broadcastConnectedClients();
 
     }
 
@@ -106,18 +115,25 @@ public class Server {
         return false;
     }
 
+    //broadcasts current connected clients
     public static void broadcastConnectedClients() {
 
-        String clientListText = "";
-        for (ServerClient sc : connectedClients) {
-            if (!sc.getUsername().equals(null)) {
-                clientListText += sc.getUsername() + "\n";
-            }
-        }
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String clientListText = "";
+                for (ServerClient sc : connectedClients) {
+                    if (!sc.getUsername().equals(null)) {
+                        clientListText += sc.getUsername() + "\n";
+                    }
+                }
 
-        for (ServerClient sc : connectedClients) {
-            sc.sendMessage(sc.createMessage(Message.MessageType.CONNECTED_CLIENTS, null, clientListText));
-        }
+                for (ServerClient sc : connectedClients) {
+                    sc.sendMessage(sc.createMessage(Message.MessageType.CONNECTED_CLIENTS, null, clientListText));
+                }
+            }
+        });
+        t.start();
 
     }
 }
@@ -132,7 +148,7 @@ class ListenThread extends Thread {
 
     @Override
     public void run() {
-
+        //accepts newly connected clients
         while (!this.server.getServerSocket().isClosed()) {
             System.out.println("Server is listening for clients...");
             try {

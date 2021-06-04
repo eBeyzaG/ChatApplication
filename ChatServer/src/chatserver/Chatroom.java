@@ -12,6 +12,7 @@ import java.util.List;
 /**
  *
  * @author beyza
+ * Server chatroom class includes chatroom operations
  */
 public class Chatroom  {
 
@@ -29,7 +30,7 @@ public class Chatroom  {
 
     }
 
-    public void sendToGroupChat(Message m, ServerClient sender) {
+    public void sendToGroupChat(Message m, ServerClient sender) {//sends the msg to all group members
 
         for (ServerClient sc : memberClilents) {
             if(sc.equals(sender)) continue;
@@ -38,7 +39,8 @@ public class Chatroom  {
 
     }
 
-    public void addMember(ServerClient newMember) {
+    public void addMember(ServerClient newMember) {//adds a new member to chatroom and notifies all members
+        
         newMember.sendMessage(newMember.createMessage(Message.MessageType.GROUP_CHAT_REQUEST, this.name, null));
         memberClilents.add(newMember);
         String members = convert_members_to_string();
@@ -50,7 +52,7 @@ public class Chatroom  {
         memberCount++;
     }
     
-    private String convert_members_to_string(){
+    private String convert_members_to_string(){//converts the members to string to send to members
         String str = "";
         for(ServerClient sc: memberClilents){
             str+= sc.getUsername() + "\n";
@@ -59,7 +61,7 @@ public class Chatroom  {
         return str;
     }
 
-    public synchronized void removeMember(ServerClient sc){
+    public synchronized void removeMember(ServerClient sc){ //removes member from groupchat
         this.memberClilents.remove(sc);
         this.memberCount--;
     }

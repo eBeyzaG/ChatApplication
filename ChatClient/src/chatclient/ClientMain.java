@@ -14,11 +14,10 @@ import javax.swing.JFrame;
 public class ClientMain {
 
     /**
-     * @param args the command line arguments
+     * 
+     * Driver class
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        // Client cli = new Client("127.0.0.1", 5000);
         ClientFrame cliFrame = new ClientFrame();
         Controller controller = new Controller(cliFrame, null);
         controller.init_controller();
