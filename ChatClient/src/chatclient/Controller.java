@@ -43,7 +43,7 @@ public class Controller {
         chats = new ArrayList<>();
         groupchats = new TreeMap<>();
         connecteds = new ArrayList<>();
-        address ="127.0.0.1";//"18.188.102.9";//"127.0.0.1"; /
+        address ="18.188.102.9";
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

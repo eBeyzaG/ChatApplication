@@ -117,7 +117,7 @@ public class ServerClient {
 
         } catch (IOException ex) {
             Logger.getLogger(ServerClient.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.toString());
         }
     }
@@ -251,18 +251,20 @@ class ServerClientListenThread extends Thread {
                 }
 
             } catch (IOException ex) {
-                this.serverClient.close();
                 Server.removeClient(this.serverClient);
+                this.serverClient.close();
                 Logger.getLogger(ServerClientListenThread.class.getName()).log(Level.SEVERE, null, ex);
+                break;
             } catch (ClassNotFoundException ex) {
-                this.serverClient.close();
                 Server.removeClient(this.serverClient);
+                this.serverClient.close();
                 Logger.getLogger(ServerClientListenThread.class.getName()).log(Level.SEVERE, null, ex);
+                break;
             } catch (Exception e) {
-                this.serverClient.close();
                 Server.removeClient(this.serverClient);
-
+                this.serverClient.close();
                 System.out.println("server client cannot be closed due to:" + e.toString());
+                break;
             }
 
         }

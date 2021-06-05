@@ -50,16 +50,16 @@ public class Server {
             @Override
             public void run() {
                 //todo
-                while(true){
-                 for (Map.Entry<String, Chatroom> entry : chatrooms.entrySet()) {
-                   
-                    if (entry.getValue().getMemberCount() == 0) {
-                        removeGroup(entry.getValue().getGroupName());
+                while (true) {
+                    for (Map.Entry<String, Chatroom> entry : chatrooms.entrySet()) {
+
+                        if (entry.getValue().getMemberCount() == 0) {
+                            removeGroup(entry.getValue().getGroupName());
+                        }
                     }
+
                 }
-                
-                }
-               
+
             }
         });
 
@@ -121,8 +121,10 @@ public class Server {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
+
                 String clientListText = "";
                 for (ServerClient sc : connectedClients) {
+
                     if (!sc.getUsername().equals(null)) {
                         clientListText += sc.getUsername() + "\n";
                     }
